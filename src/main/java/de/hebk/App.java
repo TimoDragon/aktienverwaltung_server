@@ -4,7 +4,8 @@ import java.io.File;
 
 public class App {
     public static void main(String[] args) {
-        String dir = "/home/" + System.getProperty("user.name") + "/Dokumente/Aktienverwaltung/data/";
+        String dir = "./Aktienverwaltung/data/";
+
         File accounts = new File(dir + "users/");
         File stocks = new File(dir + "stocks/");
 
@@ -17,6 +18,6 @@ public class App {
             System.out.println("Created Stocks Folder");
         }
 
-        Server server = new Server();
+        Server server = new Server(dir);
     }
 }

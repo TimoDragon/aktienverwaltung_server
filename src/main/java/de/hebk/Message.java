@@ -2,9 +2,9 @@ package de.hebk;
 
 public class Message {
     private String type;
-    private String message[];
+    private String[] message;
     
-    public Message(String type, String message[]) {
+    public Message(String type, String[] message) {
         this.message = message;
     }
 
