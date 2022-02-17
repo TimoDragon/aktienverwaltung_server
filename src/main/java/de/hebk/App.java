@@ -4,6 +4,8 @@ import java.io.File;
 
 public class App {
     public static void main(String[] args) {
+        System.out.println("Starting Server");
+
         String dir = "./Aktienverwaltung/data/";
 
         File accounts = new File(dir + "users/");

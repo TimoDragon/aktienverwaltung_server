@@ -76,6 +76,9 @@ public class Server {
 
                             writer = new BufferedWriter(new FileWriter(file));
                             writer.write(gson.toJson(stock));
+                            
+                            reader.close();
+                            writer.close();
 
                             System.out.println("Updated Stock value from " + stock.getName() + " to " + lastValue + newValue);
                         } catch (FileNotFoundException e) {
@@ -99,7 +102,7 @@ public class Server {
             while(true) {
                 String[] input = sc.nextLine().split(" ");
 
-                if (input[0].toLowerCase().equals("stocks") || input[0].toLowerCase().equals("stocks")) {
+                if (input[0].toLowerCase().equals("stock") || input[0].toLowerCase().equals("stocks")) {
                     //add a stock
                     if (input[1].toLowerCase().equals("add") && input.length == 4) {
                         String stockName = input[2];
@@ -129,8 +132,36 @@ public class Server {
 
                         System.out.println("Created new Stock");
                     }
-                    else if (input[1].toLowerCase().equals("remove") && input.length == 4) {
+                    else if (input[1].toLowerCase().equals("remove") && input.length == 3) {
+                        String stockName = input[2];
 
+                        File file = new File(dir + "/stocks/" + stockName + ".json");
+
+                        if (file.exists()) {
+                            file.delete();
+                            System.out.println("Die Aktie '" + stockName + "' wurde gelöscht");
+                        }
+                        else {
+                            System.out.println("Die Aktie exestiert nicht");
+                        }
+                    }
+                    else if (input[1].toLowerCase().equals("listvalues") && input.length == 3) {
+                        String stockName = input[2];
+
+                        File file = new File(dir + "/stocks/" + stockName + ".json");
+                        String contents = "";
+                        try {
+                            contents = new BufferedReader(new FileReader(file)).readLine();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        Stock stock = gson.fromJson(contents, Stock.class);
+                        for (int value : stock.getValues()) {
+                            System.out.println(value + " €");
+                        }
                     }
                 }
             }

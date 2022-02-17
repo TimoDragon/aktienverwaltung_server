@@ -49,8 +49,10 @@ public class EchoThread extends Thread {
                     String username = message.getMessage()[0];
                     String hashedPassword = message.getMessage()[1];
 
-                    if (login(username, hashedPassword)) {
-                        
+                    if (userExist(username, hashedPassword)) {
+                        File userFile = getUserfile(username);
+                        BufferedReader reader = new BufferedReader(new FileReader(userFile));
+                        user = gson.fromJson(reader.readLine(), User.class);
 
                         String[] response = { "successfull" };
                         String msg = gson.toJson(new Message("login", response));
@@ -63,6 +65,10 @@ public class EchoThread extends Thread {
 
                     }
                 }
+                else if (message.getType().equals("register")) {
+                    String userName = message.getMessage()[0];
+                    String hashedPasword = message.getMessage()[1];
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
@@ -70,7 +76,7 @@ public class EchoThread extends Thread {
         }
     }
 
-    private boolean login(String username, String hashedPassword) {
+    private boolean userExist(String username, String hashedPassword) {
         File userFile = getUserfile(username);
 
         try {
@@ -78,6 +84,7 @@ public class EchoThread extends Thread {
             String content = reader.readLine();
 
             User user = gson.fromJson(content, User.class);
+            reader.close();
             
             return user.getHashedPassword() == hashedPassword;
         } catch (IOException e) {
