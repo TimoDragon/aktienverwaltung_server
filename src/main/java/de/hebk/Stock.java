@@ -21,7 +21,13 @@ public class Stock {
         this.values = values;
     }
 
-    public void addValue(int value) {
-        this.values[values.length] = value;
+    public void addValue(int length, Integer[] oldArray, int value) {
+        Integer[] newValues = new Integer[length + 1];
+        for (int i = 0; i < length; i++) {
+            newValues[i] = oldArray[i];
+        }
+        newValues[length] = value;
+
+        this.values = newValues;
     }
 }

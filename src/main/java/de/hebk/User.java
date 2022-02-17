@@ -3,6 +3,7 @@ package de.hebk;
 public class User {
     private String username;
     private String hashedPassword;
+    private Stock[] stocks;
     
     public User(String username, String hashedPassword) {
         this.username = username;
@@ -23,5 +24,23 @@ public class User {
 
     public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
+    }
+
+    public Stock[] getStocks() {
+        return stocks;
+    }
+
+    public void setStocks(Stock[] stocks) {
+        this.stocks = stocks;
+    }
+
+    public void addStock(int length, Stock[] oldArray, Stock stock) {
+        Stock[] newStocks = new Stock[length + 1];
+        for (int i = 0; i < length; i++) {
+            newStocks[i] = oldArray[i];
+        }
+        newStocks[length] = stock;
+
+        this.stocks = newStocks;
     }
 }

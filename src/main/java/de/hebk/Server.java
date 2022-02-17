@@ -55,13 +55,13 @@ public class Server {
             BufferedReader reader;
             BufferedWriter writer;
 
-            try {
-                Thread.sleep(10 * 60 * 1000);
-            } catch (InterruptedException e) {
-            }
-
             while(true) {
                 File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
+
+                try {
+                    Thread.sleep(10 * 60 * 1000);
+                } catch (InterruptedException e) {
+                }
 
                 if (files.length > 0) {
                     for (File file : files) {
@@ -69,10 +69,11 @@ public class Server {
                             reader = new BufferedReader(new FileReader(file));
                             Stock stock = gson.fromJson(reader.readLine(), Stock.class);
 
-                            int lastValue = stock.getValues()[stock.getValues().length];
-                            int newValue = rand.nextInt(20) - 10;
+                            int lastValue = stock.getValues()[stock.getValues().length - 1];
+                            int randomValue = rand.nextInt(-10, 10);
+                            int newValue = lastValue - randomValue;
 
-                            stock.addValue(lastValue + newValue);
+                            stock.addValue(stock.getValues().length, stock.getValues(), newValue);
 
                             writer = new BufferedWriter(new FileWriter(file));
                             writer.write(gson.toJson(stock));
@@ -80,7 +81,7 @@ public class Server {
                             reader.close();
                             writer.close();
 
-                            System.out.println("Updated Stock value from " + stock.getName() + " to " + lastValue + newValue);
+                            System.out.println("Updated Stock value from " + stock.getName() + " to " + newValue);
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         } catch (JsonSyntaxException e) {
@@ -160,7 +161,7 @@ public class Server {
 
                         Stock stock = gson.fromJson(contents, Stock.class);
                         for (int value : stock.getValues()) {
-                            System.out.println(value + " €");
+                            System.out.println(value);
                         }
                     }
                 }
