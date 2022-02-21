@@ -70,7 +70,7 @@ public class Server {
                             Stock stock = gson.fromJson(reader.readLine(), Stock.class);
 
                             int lastValue = stock.getValues()[stock.getValues().length - 1];
-                            int randomValue = rand.nextInt(-10, 10);
+                            int randomValue = rand.nextInt(20) - 10;
                             int newValue = lastValue - randomValue;
 
                             stock.addValue(stock.getValues().length, stock.getValues(), newValue);

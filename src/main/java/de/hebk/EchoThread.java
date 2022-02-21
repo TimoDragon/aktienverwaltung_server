@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 
 public class EchoThread extends Thread {
     private Socket socket;
-    private User user;
+    private User user = null;
     private Gson gson;
 
     public EchoThread(Socket clientSocket) {
@@ -31,8 +31,7 @@ public class EchoThread extends Thread {
             inputStream = socket.getInputStream();
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             outputStream = new OutputStreamWriter(socket.getOutputStream());
-            bufferedWriter = new BufferedWriter(outputStream);
-            
+            bufferedWriter = new BufferedWriter(outputStream);   
         } catch (IOException e) {
             return;
         }
@@ -45,79 +44,81 @@ public class EchoThread extends Thread {
                 line = bufferedReader.readLine();
                 Message message = gson.fromJson(line, Message.class);
                 
-                if (message.getType().equals("login")) {
-                    String username = message.getMessage()[0];
-                    String hashedPassword = message.getMessage()[1];
-
-                    if (userExists(username, hashedPassword)) {
-                        File userFile = getUserfile(username);
-                        BufferedReader reader = new BufferedReader(new FileReader(userFile));
-                        user = gson.fromJson(reader.readLine(), User.class);
-
-                        String[] response = { "successfull" };
-                        String msg = gson.toJson(new Message("login", response));
-
-                        bufferedWriter.write(msg);
-                        bufferedWriter.newLine();
-                        bufferedWriter.flush();
-
-                        reader.close();
-                    }
-                    else {
-
-                    }
-                }
-                else if (message.getType().equals("register")) {
-                    String userName = message.getMessage()[0];
-                    String hashedPasword = message.getMessage()[1];
-                }
-                else if (message.getType().equals("getstocknames")) {
-                    BufferedReader reader;
-                    File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
-            
-                    String[] stocks = new String[files.length];
-                    for (int i = 0; i < files.length; i++) {
-                        try {
-                            reader = new BufferedReader(new FileReader(files[i]));
-                            String stockName = reader.readLine();
-                            String stock = gson.fromJson(stockName, Stock.class).getName();
-                            stocks[i] = stock;
-                        } catch(IOException e) {
-                            e.printStackTrace();
+                if (user == null) {
+                    if (message.getType().equals("login")) {
+                        String username = message.getMessage()[0];
+                        String hashedPassword = message.getMessage()[1];
+    
+                        if (userExists(username, hashedPassword)) {
+                            File userFile = getUserfile(username);
+                            BufferedReader reader = new BufferedReader(new FileReader(userFile));
+                            user = gson.fromJson(reader.readLine(), User.class);
+    
+                            String[] response = { "successfull" };
+                            String msg = gson.toJson(new Message("login", response));
+    
+                            bufferedWriter.write(msg);
+                            bufferedWriter.newLine();
+                            bufferedWriter.flush();
+    
+                            reader.close();
+                        }
+                        else {
+    
                         }
                     }
-            
-                    Message msg = new Message("getstocknames", stocks);
-                    bufferedWriter.write(gson.toJson(msg));
-                    bufferedWriter.newLine();
-                    bufferedWriter.flush();
-                }
-                else if (message.getType().equals("getstock")) {
-                    String stockName = message.getMessage()[0];
-
-                    String stockJson = "";
-                    boolean checker = false;
-                    File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
-                    for (File file : files) {
-                        if (file.getName().equals(stockName + ".json")) {
-                            checker = true;
-                            
-                            BufferedReader reader = new BufferedReader(new FileReader(file));
-                            stockJson = reader.readLine();
-                        }
+                    else if (message.getType().equals("register")) {
+                        String userName = message.getMessage()[0];
+                        String hashedPasword = message.getMessage()[1];
                     }
-
-                    if (checker == true) {
-                        String[] msgString = { stockJson };
-                        Message msg = new Message("getstock", msgString);
-
+                }
+                else if (user != null) {
+                    if (message.getType().equals("getstocknames")) {
+                        BufferedReader reader;
+                        File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
+                
+                        String[] stocks = new String[files.length];
+                        for (int i = 0; i < files.length; i++) {
+                            try {
+                                reader = new BufferedReader(new FileReader(files[i]));
+                                String stockName = reader.readLine();
+                                String stock = gson.fromJson(stockName, Stock.class).getName();
+                                stocks[i] = stock;
+                            } catch(IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                
+                        Message msg = new Message("getstocknames", stocks);
                         bufferedWriter.write(gson.toJson(msg));
                         bufferedWriter.newLine();
                         bufferedWriter.flush();
                     }
-                    else {
-                        String[] msgString = { "error" };
-                        Message msg = new Message("getstock", msgString);
+                    else if (message.getType().equals("getstock")) {
+                        String stockName = message.getMessage()[0];
+    
+                        String stockJson = "";
+                        boolean checker = false;
+                        File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
+                        for (File file : files) {
+                            if (file.getName().equals(stockName + ".json")) {
+                                checker = true;
+                                
+                                BufferedReader reader = new BufferedReader(new FileReader(file));
+                                stockJson = reader.readLine();
+                            }
+                        }
+    
+                        String[] msgString = { null };
+                        Message msg;
+                        if (checker == true) {
+                            msgString[0] = stockJson;
+                            msg = new Message("getstock", msgString);
+                        }
+                        else {
+                            msgString[0] = "error";
+                            msg = new Message("getstock", msgString);
+                        }
 
                         bufferedWriter.write(gson.toJson(msg));
                         bufferedWriter.newLine();
