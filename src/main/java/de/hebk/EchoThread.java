@@ -42,12 +42,12 @@ public class EchoThread extends Thread {
         while (true) {
             try {
                 line = bufferedReader.readLine();
-                Message message = gson.fromJson(line, Message.class);
+                String[] message = gson.fromJson(line, String[].class);
                 
                 if (user == null) {
-                    if (message.getType().equals("login")) {
-                        String username = message.getMessage()[0];
-                        String hashedPassword = message.getMessage()[1];
+                    if (message[0].equals("login")) {
+                        String username = message[1];
+                        String hashedPassword = message[2];
     
                         if (userExists(username, hashedPassword)) {
                             File userFile = getUserfile(username);
@@ -55,7 +55,7 @@ public class EchoThread extends Thread {
                             user = gson.fromJson(reader.readLine(), User.class);
     
                             String[] response = { "successfull" };
-                            String msg = gson.toJson(new Message("login", response));
+                            String msg = gson.toJson(response);
     
                             bufferedWriter.write(msg);
                             bufferedWriter.newLine();
@@ -67,35 +67,35 @@ public class EchoThread extends Thread {
     
                         }
                     }
-                    else if (message.getType().equals("register")) {
-                        String userName = message.getMessage()[0];
-                        String hashedPasword = message.getMessage()[1];
+                    else if (message[0].equals("register")) {
+                        String userName = message[1];
+                        String hashedPasword = message[2];
                     }
                 }
                 else if (user != null) {
-                    if (message.getType().equals("getstocknames")) {
+                    if (message[0].equals("getstocknames")) {
                         BufferedReader reader;
                         File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
                 
                         String[] stocks = new String[files.length];
+                        stocks[0] = "getstocknames";
                         for (int i = 0; i < files.length; i++) {
                             try {
                                 reader = new BufferedReader(new FileReader(files[i]));
                                 String stockName = reader.readLine();
                                 String stock = gson.fromJson(stockName, Stock.class).getName();
-                                stocks[i] = stock;
+                                stocks[i + 1] = stock;
                             } catch(IOException e) {
                                 e.printStackTrace();
                             }
                         }
                 
-                        Message msg = new Message("getstocknames", stocks);
-                        bufferedWriter.write(gson.toJson(msg));
+                        bufferedWriter.write(gson.toJson(stocks));
                         bufferedWriter.newLine();
                         bufferedWriter.flush();
                     }
-                    else if (message.getType().equals("getstock")) {
-                        String stockName = message.getMessage()[0];
+                    else if (message[0].equals("getstock")) {
+                        String stockName = message[1];
     
                         String stockJson = "";
                         boolean checker = false;
@@ -109,18 +109,17 @@ public class EchoThread extends Thread {
                             }
                         }
     
-                        String[] msgString = { null };
-                        Message msg;
+                        String[] msgString = { null, null };
                         if (checker == true) {
-                            msgString[0] = stockJson;
-                            msg = new Message("getstock", msgString);
+                            msgString[0] = "getstock";
+                            msgString[1] = stockJson;
                         }
                         else {
-                            msgString[0] = "error";
-                            msg = new Message("getstock", msgString);
+                            msgString[0] = "getstock";
+                            msgString[1] = "error";
                         }
 
-                        bufferedWriter.write(gson.toJson(msg));
+                        bufferedWriter.write(gson.toJson(msgString));
                         bufferedWriter.newLine();
                         bufferedWriter.flush();
                     }
