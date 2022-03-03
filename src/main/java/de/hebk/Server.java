@@ -56,13 +56,13 @@ public class Server {
             BufferedWriter writer;
 
             while(true) {
-                File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
-
                 try {
                     Thread.sleep(10 * 60 * 1000);
                 } catch (InterruptedException e) {
                 }
 
+                File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
+                
                 if (files.length > 0) {
                     for (File file : files) {
                         try {
