@@ -64,7 +64,10 @@ public class EchoThread extends Thread {
                             reader.close();
                         }
                         else {
-    
+                            String[] respone = { "error" };
+                            bufferedWriter.write(gson.toJson(respone));
+                            bufferedWriter.newLine();
+                            bufferedWriter.flush();
                         }
                     }
                     else if (message[0].equals("register")) {
