@@ -1,11 +1,12 @@
 package de.hebk;
 
-public class User {
+public class User extends Person {
     private String username;
     private String hashedPassword;
     private Stock[] stocks;
     
-    public User(String username, String hashedPassword) {
+    public User(String name, String birthdate, String email, String phonenumber, String username, String hashedPassword) {
+        super(name, birthdate, email, phonenumber);
         this.username = username;
         this.hashedPassword = hashedPassword;
     }

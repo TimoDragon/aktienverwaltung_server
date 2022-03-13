@@ -57,12 +57,6 @@ public class EchoThread extends Thread {
                         reader = new BufferedReader(new FileReader(usersFiles[i]));
                         users[i] = gson.fromJson(reader.readLine(), User.class);
                     }
-
-                    String usersString = gson.toJson(users);
-
-                    bufferedWriter.write(usersString);
-                    bufferedWriter.newLine();
-                    bufferedWriter.flush();
                 }
                 else if (message[0].equals("getstocks") || message[0].equals("getstonks")) {
                     File[] stockFiles = new File(dir + "stocks/").listFiles();
