@@ -43,7 +43,7 @@ public class Server {
                 System.out.println("I/O error: " + e);
             }
 
-            System.out.println("New login");
+            System.out.println("New connection");
             new EchoThread(socket).start();
         }
     }

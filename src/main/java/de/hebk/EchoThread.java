@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +17,8 @@ public class EchoThread extends Thread {
     private Socket socket;
     private User user = null;
     private Gson gson;
+
+    String dir = "./Aktienverwaltung/data/";
 
     public EchoThread(Socket clientSocket) {
         this.socket = clientSocket;
@@ -44,85 +47,63 @@ public class EchoThread extends Thread {
                 line = bufferedReader.readLine();
                 String[] message = gson.fromJson(line, String[].class);
                 
-                if (user == null) {
-                    if (message[0].equals("login")) {
-                        String username = message[1];
-                        String hashedPassword = message[2];
-    
-                        if (userExists(username, hashedPassword)) {
-                            File userFile = getUserfile(username);
-                            BufferedReader reader = new BufferedReader(new FileReader(userFile));
-                            user = gson.fromJson(reader.readLine(), User.class);
-    
-                            String[] response = { "successfull" };
-                            String msg = gson.toJson(response);
-    
-                            bufferedWriter.write(msg);
-                            bufferedWriter.newLine();
-                            bufferedWriter.flush();
-    
-                            reader.close();
-                        }
-                        else {
-    
-                        }
+                if (message[0].equals("getusers")) {
+                    File[] usersFiles = new File(dir + "users/").listFiles();
+                    User[] users = new User[usersFiles.length];
+
+                    BufferedReader reader;
+
+                    for (int i = 0; i < usersFiles.length; i++) {
+                        reader = new BufferedReader(new FileReader(usersFiles[i]));
+                        users[i] = gson.fromJson(reader.readLine(), User.class);
                     }
-                    else if (message[0].equals("register")) {
-                        String userName = message[1];
-                        String hashedPasword = message[2];
+
+                    String usersString = gson.toJson(users);
+
+                    bufferedWriter.write(usersString);
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                }
+                else if (message[0].equals("getstocks") || message[0].equals("getstonks")) {
+                    File[] stockFiles = new File(dir + "stocks/").listFiles();
+                    Stock[] stocks = new Stock[stockFiles.length];
+                    BufferedReader reader;
+
+                    for (int i = 0; i < stockFiles.length; i++) {
+                        reader = new BufferedReader(new FileReader(stockFiles[i]));
+                        stocks[i] = gson.fromJson(reader.readLine(), Stock.class);
+                    }
+
+                    String stocksSting = gson.toJson(stocks);
+
+                    bufferedWriter.write(stocksSting);
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                }
+                else if (message[0].equals("adduser") && message.length > 2) {
+                    User newUser = gson.fromJson(message[1], User.class);
+
+                    File newUserFile = new File(dir + "users/" + newUser.getUsername() + ".json");
+
+                    if (!newUserFile.exists()) {
+                        newUserFile.createNewFile();
+
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(newUserFile));
+                        writer.write(message[1]);
+                        writer.close();
+
+                        System.out.println("Added new user '" + newUser.getUsername() + "'");
                     }
                 }
-                else if (user != null) {
-                    if (message[0].equals("getstocknames")) {
-                        BufferedReader reader;
-                        File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
-                
-                        String[] stocks = new String[files.length];
-                        stocks[0] = "getstocknames";
-                        for (int i = 0; i < files.length; i++) {
-                            try {
-                                reader = new BufferedReader(new FileReader(files[i]));
-                                String stockName = reader.readLine();
-                                String stock = gson.fromJson(stockName, Stock.class).getName();
-                                stocks[i + 1] = stock;
-                            } catch(IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                
-                        bufferedWriter.write(gson.toJson(stocks));
-                        bufferedWriter.newLine();
-                        bufferedWriter.flush();
-                    }
-                    else if (message[0].equals("getstock")) {
-                        String stockName = message[1];
-    
-                        String stockJson = "";
-                        boolean checker = false;
-                        File[] files = new File("./Aktienverwaltung/data/stocks/").listFiles();
-                        for (File file : files) {
-                            if (file.getName().equals(stockName + ".json")) {
-                                checker = true;
-                                
-                                BufferedReader reader = new BufferedReader(new FileReader(file));
-                                stockJson = reader.readLine();
-                            }
-                        }
-    
-                        String[] msgString = { null, null };
-                        if (checker == true) {
-                            msgString[0] = "getstock";
-                            msgString[1] = stockJson;
-                        }
-                        else {
-                            msgString[0] = "getstock";
-                            msgString[1] = "error";
-                        }
+                else if (message[0].equals("updateuser") && message.length > 2) {
+                    User user = gson.fromJson(message[1], User.class);
+                    File userFile = new File(dir + "users/" + user.getUsername() + ".json");
 
-                        bufferedWriter.write(gson.toJson(msgString));
-                        bufferedWriter.newLine();
-                        bufferedWriter.flush();
-                    }
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(userFile));
+                    writer.write(message[1]);
+                    writer.close();
+
+                    System.out.println("Updated user '" + user.getUsername() + "'");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
