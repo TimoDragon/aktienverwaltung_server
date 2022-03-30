@@ -15,7 +15,6 @@ import com.google.gson.Gson;
 
 public class EchoThread extends Thread {
     private Socket socket;
-    private User user = null;
     private Gson gson;
 
     String dir = "./Aktienverwaltung/data/";
@@ -51,12 +50,12 @@ public class EchoThread extends Thread {
                     System.out.println("Sending all user to client");
 
                     File[] usersFiles = new File(dir + "users/").listFiles();
-                    User[] users = new User[usersFiles.length];
+                    String[] users = new String[usersFiles.length];
 
                     BufferedReader reader;
                     for (int i = 0; i < usersFiles.length; i++) {
                         reader = new BufferedReader(new FileReader(usersFiles[i]));
-                        users[i] = gson.fromJson(reader.readLine(), User.class);
+                        users[i] = reader.readLine();
                     }
 
                     bufferedWriter.write(gson.toJson(users));
@@ -113,37 +112,5 @@ public class EchoThread extends Thread {
                 return;
             }
         }
-    }
-
-    private boolean userExists(String username, String hashedPassword) {
-        File userFile = getUserfile(username);
-
-        if (userFile != null) {
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(userFile));
-                String content = reader.readLine();
-    
-                User user = gson.fromJson(content, User.class);
-                reader.close();
-                
-                return user.getHashedPassword() == hashedPassword;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return false;
-    }
-
-    public File getUserfile(String username) {
-        File[] files = new File("./Aktienverwaltung/data/users/").listFiles();
-
-        for (File file : files) {
-            if (file.getName().equals(username + ".json")) {
-                return file;
-            }
-        }
-
-        return null;
     }
 }
