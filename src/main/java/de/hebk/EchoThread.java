@@ -98,7 +98,7 @@ public class EchoThread extends Thread {
                         System.out.println("Added new user");
                     }
                 }
-                else if (message[0].equals("updateuser") && message.length > 2) {
+                else if (message[0].equals("updateuser") && message.length > 1) {
                     User user = gson.fromJson(message[1], User.class);
                     File userFile = new File(dir + "users/" + user.getEmail() + ".json");
 
